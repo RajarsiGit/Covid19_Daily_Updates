@@ -1,0 +1,3 @@
+sh ./0-download-latest-JHU.sh
+sh ./download.sh
+python 2-smart-insert.py

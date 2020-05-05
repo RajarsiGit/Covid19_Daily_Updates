@@ -1,5 +1,3 @@
-#!/usr/bin/python
-
 import csv
 import sys
 import time
@@ -90,36 +88,37 @@ def find_same_area_uid(docs, fips):
 
 
 def get_all_csv_as_docs():
-    with open("Covid19_Daily_Updates/data/csse_covid_19_data/UID_ISO_FIPS_LookUp_Table.csv", encoding="utf-8-sig") as file:
+    with open("data/csse_covid_19_data/UID_ISO_FIPS_LookUp_Table.csv", encoding="utf-8-sig") as file:
         csv_file = csv.DictReader(file)
         fips = []
         for row in csv_file:
             fips.append(OrderedDict(row))
-    with open("Covid19_Daily_Updates/data/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv", encoding="utf-8-sig") as file:
+    with open("data/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv", encoding="utf-8-sig") as file:
         csv_file = csv.DictReader(file)
         confirmed_global_docs = []
         for row in csv_file:
             confirmed_global_docs.append(OrderedDict(row))
-    with open("Covid19_Daily_Updates/data/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv", encoding="utf-8-sig") as file:
+    with open("data/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv", encoding="utf-8-sig") as file:
         csv_file = csv.DictReader(file)
         deaths_global_docs = []
         for row in csv_file:
             deaths_global_docs.append(OrderedDict(row))
-    with open("Covid19_Daily_Updates/data/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_recovered_global.csv", encoding="utf-8-sig") as file:
+    with open("data/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_recovered_global.csv", encoding="utf-8-sig") as file:
         csv_file = csv.DictReader(file)
         recovered_global_docs = []
         for row in csv_file:
             recovered_global_docs.append(OrderedDict(row))
-    with open("Covid19_Daily_Updates/data/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_US.csv", encoding="utf-8-sig") as file:
+    with open("data/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_US.csv", encoding="utf-8-sig") as file:
         csv_file = csv.DictReader(file)
         confirmed_us_docs = []
         for row in csv_file:
             confirmed_us_docs.append(OrderedDict(row))
-    with open("Covid19_Daily_Updates/data/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_US.csv", encoding="utf-8-sig") as file:
+    with open("data/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_US.csv", encoding="utf-8-sig") as file:
         csv_file = csv.DictReader(file)
         deaths_us_docs = []
         for row in csv_file:
             deaths_us_docs.append(OrderedDict(row))
+
     return fips, confirmed_global_docs, deaths_global_docs, recovered_global_docs, confirmed_us_docs, deaths_us_docs
 
 
@@ -257,7 +256,7 @@ def doc_generation(combined):
 
 
 def get_mongodb_client():
-    uri = sys.argv[1]
+    uri = "mongodb+srv://rajarsi3997:Rajarsi%403997@covid19-dataset-ukkfy.gcp.mongodb.net/test?retryWrites=true&w=majority"
     if not uri:
         print('MongoDB URI is missing in cmd line arg 1.')
         exit(1)
@@ -270,6 +269,13 @@ def mongodb_insert_many(client, collection, docs):
     coll.drop()
     result = coll.insert_many(docs)
     print(len(result.inserted_ids), 'have been inserted in', collection, 'in', round(time.time() - start, 2), 's')
+
+def drop_old_collections(client, collections):
+    start = time.time()
+    for collection in collections:
+        coll = client.get_database(DB).get_collection(collection.replace(TEMP, ''))
+        coll.drop()
+    print('Dropped old collections in', round(time.time() - start, 2), 's')
 
 
 def create_indexes_generic(client, collection):
@@ -489,6 +495,7 @@ def main():
     print(len(docs_global) + len(docs_us), 'documents have been generated in', round(time.time() - start, 2), 's')
 
     client = get_mongodb_client()
+    drop_old_collections(client, [COLL_global, COLL_us, COLL_global_and_us, COLL_countries])
     mongodb_insert_many(client, COLL_global, docs_global)
     mongodb_insert_many(client, COLL_us, docs_us)
     mongodb_insert_many(client, COLL_global_and_us, docs_global + docs_us)
