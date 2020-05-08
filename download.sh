@@ -1,7 +1,8 @@
-cd /c/Users/Administrator/Documents/GitHub/Covid19_Daily_Updates/data/csse_covid_19_data
+#!/bin/bash
+cd data/csse_covid_19_data
 curl https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/UID_ISO_FIPS_LookUp_Table.csv -o UID_ISO_FIPS_LookUp_Table.csv
-
-cd /c/Users/Administrator/Documents/GitHub/Covid19_Daily_Updates/data/csse_covid_19_data/csse_covid_19_time_series
+cd ..
+cd csse_covid_19_data/csse_covid_19_time_series
 curl https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv -o time_series_covid19_confirmed_global.csv
 curl https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_US.csv -o time_series_covid19_confirmed_US.csv
 curl https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv -o time_series_covid19_deaths_global.csv
