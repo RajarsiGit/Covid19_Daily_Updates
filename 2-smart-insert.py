@@ -1,5 +1,6 @@
 import csv
 import sys
+import os
 import time
 from collections import OrderedDict
 from datetime import datetime
@@ -508,8 +509,8 @@ def main():
 	rename_collections(client, [COLL_global, COLL_us, COLL_global_and_us, COLL_countries])
 	create_metadata(client)
 	print()
-	exit()
 
 
 if __name__ == '__main__':
     main()
+    os._exit(0)
