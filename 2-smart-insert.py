@@ -1,5 +1,4 @@
 import csv
-import sys
 import time
 from collections import OrderedDict
 from datetime import datetime
@@ -270,6 +269,7 @@ def mongodb_insert_many(client, collection, docs):
     result = coll.insert_many(docs)
     print(len(result.inserted_ids), 'have been inserted in', collection, 'in', round(time.time() - start, 2), 's')
 
+
 def drop_old_collections(client, collections):
     start = time.time()
     for collection in collections:
@@ -484,6 +484,7 @@ def create_collection_stats_countries(client):
 
 
 def main():
+    print()
     start = time.time()
     fips, confirmed_global, deaths_global, recovered_global, confirmed_us, deaths_us = clean_all_docs(get_all_csv_as_docs())
     confirmed_us, deaths_us = data_hacking(recovered_global, confirmed_us, deaths_us)
@@ -506,6 +507,7 @@ def main():
 
     rename_collections(client, [COLL_global, COLL_us, COLL_global_and_us, COLL_countries])
     create_metadata(client)
+    print()
 
 
 if __name__ == '__main__':
