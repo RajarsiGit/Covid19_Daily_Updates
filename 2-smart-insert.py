@@ -490,7 +490,7 @@ def main():
     confirmed_us, deaths_us = data_hacking(recovered_global, confirmed_us, deaths_us)
     combined_global = combine_global_and_fips(confirmed_global, deaths_global, recovered_global, fips)
     combined_us = combine_us_and_fips(confirmed_us, deaths_us, fips)
-    print_warnings_and_exit_on_error(deaths_global, recovered_global, deaths_us)
+    #print_warnings_and_exit_on_error(deaths_global, recovered_global, deaths_us)
     docs_global = doc_generation(combined_global)
     docs_us = doc_generation(combined_us)
     print(len(docs_global) + len(docs_us), 'documents have been generated in', round(time.time() - start, 2), 's')
