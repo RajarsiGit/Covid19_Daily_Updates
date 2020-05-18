@@ -78,7 +78,7 @@ def clean_docs(docs):
 
 def find_same_area_country_state(docs, country, state):
     for d in docs:
-        if d.get('country') == country and d.get('state') == state:
+        if d.get('country') == country and d.get('state') == state or d.get('state') == 'Recovered':
             return d
 
 
