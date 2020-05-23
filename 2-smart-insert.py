@@ -1,6 +1,4 @@
 import csv
-import sys
-import os
 import time
 from collections import OrderedDict
 from datetime import datetime
@@ -78,7 +76,7 @@ def clean_docs(docs):
 
 def find_same_area_country_state(docs, country, state):
     for d in docs:
-        if d.get('country') == country and d.get('state') == state or d.get('state') == 'Recovered':
+        if d.get('country') == country and d.get('state') == state:
             return d
 
 
@@ -270,6 +268,7 @@ def mongodb_insert_many(client, collection, docs):
     coll.drop()
     result = coll.insert_many(docs)
     print(len(result.inserted_ids), 'have been inserted in', collection, 'in', round(time.time() - start, 2), 's')
+
 
 def drop_old_collections(client, collections):
     start = time.time()
@@ -485,32 +484,31 @@ def create_collection_stats_countries(client):
 
 
 def main():
-	print()
-	start = time.time()
-	fips, confirmed_global, deaths_global, recovered_global, confirmed_us, deaths_us = clean_all_docs(get_all_csv_as_docs())
-	confirmed_us, deaths_us = data_hacking(recovered_global, confirmed_us, deaths_us)
-	combined_global = combine_global_and_fips(confirmed_global, deaths_global, recovered_global, fips)
-	combined_us = combine_us_and_fips(confirmed_us, deaths_us, fips)
-	print_warnings_and_exit_on_error(deaths_global, recovered_global, deaths_us)
-	docs_global = doc_generation(combined_global)
-	docs_us = doc_generation(combined_us)
-	print(len(docs_global) + len(docs_us), 'documents have been generated in', round(time.time() - start, 2), 's')
+    print()
+    start = time.time()
+    fips, confirmed_global, deaths_global, recovered_global, confirmed_us, deaths_us = clean_all_docs(get_all_csv_as_docs())
+    confirmed_us, deaths_us = data_hacking(recovered_global, confirmed_us, deaths_us)
+    combined_global = combine_global_and_fips(confirmed_global, deaths_global, recovered_global, fips)
+    combined_us = combine_us_and_fips(confirmed_us, deaths_us, fips)
+    #print_warnings_and_exit_on_error(deaths_global, recovered_global, deaths_us)
+    docs_global = doc_generation(combined_global)
+    docs_us = doc_generation(combined_us)
+    print(len(docs_global) + len(docs_us), 'documents have been generated in', round(time.time() - start, 2), 's')
 
-	client = get_mongodb_client()
-	drop_old_collections(client, [COLL_global, COLL_us, COLL_global_and_us, COLL_countries])
-	mongodb_insert_many(client, COLL_global, docs_global)
-	mongodb_insert_many(client, COLL_us, docs_us)
-	mongodb_insert_many(client, COLL_global_and_us, docs_global + docs_us)
-	create_collection_stats_countries(client)
+    client = get_mongodb_client()
+    drop_old_collections(client, [COLL_global, COLL_us, COLL_global_and_us, COLL_countries])
+    mongodb_insert_many(client, COLL_global, docs_global)
+    mongodb_insert_many(client, COLL_us, docs_us)
+    mongodb_insert_many(client, COLL_global_and_us, docs_global + docs_us)
+    create_collection_stats_countries(client)
 
-	create_indexes(client)
-	fix_double_count_us(client, COLL_global_and_us)
+    create_indexes(client)
+    fix_double_count_us(client, COLL_global_and_us)
 
-	rename_collections(client, [COLL_global, COLL_us, COLL_global_and_us, COLL_countries])
-	create_metadata(client)
-	print()
+    rename_collections(client, [COLL_global, COLL_us, COLL_global_and_us, COLL_countries])
+    create_metadata(client)
+    print()
 
 
 if __name__ == '__main__':
     main()
-    os._exit(0)
